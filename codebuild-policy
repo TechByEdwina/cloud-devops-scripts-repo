@@ -1,0 +1,14 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codebuild:StartBuild",
+                "codebuild:BatchGetBuilds",
+                "codebuild:BatchGetProjects"
+            ],
+            "Resource": "arn:aws:codebuild:us-east-2:506993645576:project/job-tracker"
+        }
+    ]
+}
