@@ -1,0 +1,7 @@
+echo "Hello from Jenkins!"
+echo "This is our first build"
+echo "Jenkins is running on:"
+hostname
+echo "Current user:"
+whoami
+echo "Build completed successfully"

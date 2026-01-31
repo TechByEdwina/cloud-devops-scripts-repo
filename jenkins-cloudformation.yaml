@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Install Jenkins on EC2 using CloudFormation (Snap-based)
+
+Parameters:
+  KeyName:
+    Description: Select an existing EC2 Key Pair for SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  JenkinsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH and Jenkins access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+
+  JenkinsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref JenkinsSecurityGroup
+      ImageId: ami-0fc5d935ebf8bc3bc   # Ubuntu 22.04 LTS (us-east-1)
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          apt update -y
+          apt install -y openjdk-17-jdk
+          snap install jenkins --classic
+          systemctl enable snap.jenkins.jenkins
+          systemctl start snap.jenkins.jenkins
+
+Outputs:
+  JenkinsPublicIP:
+    Description: Public IP address of Jenkins server
+    Value: !GetAtt JenkinsInstance.PublicIp
