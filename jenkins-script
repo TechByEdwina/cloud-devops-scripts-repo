@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'jenkins-demo-image'
-        CONTAINER_NAME = 'jenkins-demo-container'
         PATH = "/usr/bin:/bin:/usr/sbin:$PATH"
     }
 
@@ -22,30 +21,27 @@ pipeline {
             }
         }
 
-        stage('Verify Image Exists') {
+        stage('Verify Image (Jenkins View)') {
             steps {
-                sh 'docker images | grep $DOCKER_IMAGE'
+                sh 'docker images'
             }
         }
 
         stage('Run Container Test') {
             steps {
                 sh '''
-                  docker rm -f $CONTAINER_NAME || true
-                  docker run -d --name $CONTAINER_NAME -p 8081:80 $DOCKER_IMAGE
-                  sleep 5
-                  curl -f http://localhost:8081
+                    docker rm -f jenkins-demo-container || true
+                    docker run -d --name jenkins-demo-container -p 8081:80 jenkins-demo-image
+                    sleep 5
+                    curl -f http://localhost:8081
                 '''
             }
         }
     }
 
     post {
-        always {
-            sh '''
-              docker stop $CONTAINER_NAME || true
-              docker rm $CONTAINER_NAME || true
-            '''
+        success {
+            echo 'Image kept on server for inspection'
         }
     }
 }
