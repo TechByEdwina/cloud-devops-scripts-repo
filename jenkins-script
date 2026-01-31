@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'jenkins-demo-image'
-        PATH = "/usr/bin:/bin:/usr/sbin:$PATH"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
+                echo 'Cloning GitHub repository...'
                 git branch: 'main',
                     url: 'https://github.com/TechByEdwina/jenkins-container-pipeline.git'
             }
@@ -17,31 +17,44 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                echo 'Building Docker image...'
                 sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
-        stage('Verify Image (Jenkins View)') {
+        stage('Verify Docker Image') {
             steps {
-                sh 'docker images'
+                echo 'Verifying Docker image exists...'
+                sh 'docker images | grep $DOCKER_IMAGE'
             }
         }
 
-        stage('Run Container Test') {
+        stage('Run Docker Container (Test)') {
             steps {
+                echo 'Running container to test image...'
                 sh '''
                     docker rm -f jenkins-demo-container || true
-                    docker run -d --name jenkins-demo-container -p 8081:80 jenkins-demo-image
+                    docker run -d --name jenkins-demo-container -p 8081:80 $DOCKER_IMAGE
                     sleep 5
                     curl -f http://localhost:8081
                 '''
+            }
+        }
+
+        stage('Final Verification') {
+            steps {
+                echo 'Listing Docker images after pipeline...'
+                sh 'docker images | grep $DOCKER_IMAGE'
             }
         }
     }
 
     post {
         success {
-            echo 'Image kept on server for inspection'
+            echo 'Pipeline completed successfully. Docker image was NOT deleted.'
+        }
+        failure {
+            echo 'Pipeline failed. Docker image may still exist for inspection.'
         }
     }
 }
