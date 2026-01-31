@@ -1,0 +1,63 @@
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'jenkins-demo-image'
+        CONTAINER_NAME = 'jenkins-demo-container'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo 'Cloning GitHub repository...'
+                git branch: 'main',
+                    url: 'https://github.com/TechByEdwina/jenkins-container-pipeline.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Verify Docker Image') {
+            steps {
+                echo 'Verifying Docker image exists...'
+                sh 'docker image inspect $DOCKER_IMAGE'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                echo 'Running container to test...'
+                sh '''
+                 #  docker rm -f $CONTAINER_NAME || true
+                    docker run -d --name $CONTAINER_NAME -p 8081:80 $DOCKER_IMAGE
+                    sleep 5
+                    curl -f http://localhost:8081
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            sh '''
+                docker rm -f $CONTAINER_NAME || true
+                docker rmi $DOCKER_IMAGE || true
+            '''
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline succeeded.'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
+
