@@ -34,8 +34,8 @@ pipeline {
             steps {
                 echo 'Running container to test...'
                 sh '''
-                 #  docker rm -f $CONTAINER_NAME || true
-                    docker run -d --name $CONTAINER_NAME -p 8081:80 $DOCKER_IMAGE
+                 // docker rm -f $CONTAINER_NAME || true
+                 // docker run -d --name $CONTAINER_NAME -p 8081:80 $DOCKER_IMAGE
                     sleep 5
                     curl -f http://localhost:8081
                 '''
