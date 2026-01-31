@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  S3 Static Website Hosting Bucket with CI/CD Support.
+  Allows public read access for website hosting and
+  write access for CodePipeline deployments (cross-region safe).
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Globally unique S3 bucket name for the static website
+
+  PipelineRoleArn:
+    Type: String
+    Description: ARN of the CodePipeline service role that deploys artifacts
+
+Resources:
+  StaticSiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  StaticSiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticSiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          # Allow public read access for website hosting
+          - Sid: PublicReadForWebsite
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${StaticSiteBucket.Arn}/*"
+
+          # Allow CodePipeline to deploy artifacts
+          - Sid: AllowCodePipelineDeploy
+            Effect: Allow
+            Principal:
+              AWS: !Ref PipelineRoleArn
+            Action:
+              - s3:PutObject
+              - s3:GetObject
+              - s3:PutObjectAcl
+            Resource: !Sub "${StaticSiteBucket.Arn}/*"
+
+Outputs:
+  BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref StaticSiteBucket
+
+  WebsiteURL:
+    Description: S3 Static Website URL
+    Value: !GetAtt StaticSiteBucket.WebsiteURL
