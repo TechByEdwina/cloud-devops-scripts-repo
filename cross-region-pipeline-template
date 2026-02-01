@@ -1,0 +1,140 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cross-region CI/CD pipeline with manual approval and S3 deployments
+
+Parameters:
+  CodeCommitRepoName:
+    Type: String
+
+  BranchName:
+    Type: String
+    Default: main
+
+  CodeBuildProjectName:
+    Type: String
+
+  StagingBucketName:
+    Type: String
+    Default: staging-s3-deployment123
+
+  ProdBucketName:
+    Type: String
+    Default: prod-s3-deployment123
+
+  ArtifactBucketOhio:
+    Type: String
+
+  ArtifactBucketOregon:
+    Type: String
+
+Resources:
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSCodeCommitReadOnly
+        - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
+
+      Policies:
+        - PolicyName: AllowPassRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource: "*"
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt PipelineRole.Arn
+
+      ArtifactStores:
+        - Region: us-east-2
+          ArtifactStore:
+            Type: S3
+            Location: !Ref ArtifactBucketOhio
+
+        - Region: us-west-2
+          ArtifactStore:
+            Type: S3
+            Location: !Ref ArtifactBucketOregon
+
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: '1'
+              Configuration:
+                RepositoryName: !Ref CodeCommitRepoName
+                BranchName: !Ref BranchName
+              OutputArtifacts:
+                - Name: SourceArtifact
+
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectName
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+
+        - Name: DeployStaging
+          Actions:
+            - Name: DeployToStaging
+              Region: us-east-2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                BucketName: !Ref StagingBucketName
+                Extract: 'true'
+              InputArtifacts:
+                - Name: BuildArtifact
+
+        - Name: ManualApproval
+          Actions:
+            - Name: ApproveProduction
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+
+        - Name: DeployProduction
+          Actions:
+            - Name: DeployToProd
+              Region: us-west-2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                BucketName: !Ref ProdBucketName
+                Extract: 'true'
+              InputArtifacts:
+                - Name: BuildArtifact
+
