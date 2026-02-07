@@ -8,7 +8,7 @@ Parameters:
 
   BranchName:
     Type: String
-    Default: main
+    Default: master
 
   CodeBuildProjectName:
     Type: String
@@ -41,7 +41,7 @@ Resources:
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AWSCodeCommitReadOnly
+        - arn:aws:iam::aws:policy/AWSCodeCommitPowerUser
         - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
 
       Policies:
