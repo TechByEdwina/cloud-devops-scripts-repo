@@ -1,0 +1,56 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Launch EC2 in default VPC using a mapping for AMI (CFN demo)
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0abcdef1234567890
+    us-east-2:
+      AMI: ami-0123456789abcdef0
+    us-west-1:
+      AMI: ami-0fedcba9876543210
+    us-west-2:
+      AMI: ami-00112233445566778
+
+Resources:
+  DefaultVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: DefaultVPCForDemo
+
+  DefaultSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DefaultVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs ""]
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH access
+      VpcId: !Ref DefaultVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !FindInMap
+        - RegionMap
+        - !Ref "AWS::Region"
+        - AMI
+      SubnetId: !Ref DefaultSubnet
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
