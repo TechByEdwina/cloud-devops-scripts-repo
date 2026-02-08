@@ -15,7 +15,7 @@ Resources:
   DemoEC2:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t3.micro
       ImageId: !FindInMap
         - RegionMap
         - !Ref AWS::Region
