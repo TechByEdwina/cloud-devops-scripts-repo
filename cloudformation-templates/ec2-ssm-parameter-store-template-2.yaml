@@ -1,0 +1,17 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Launch EC2 in default VPC using:
+    - Latest AMI from AWS SSM Parameter Store
+    - InstanceType from SSM Parameter Store
+
+
+Resources:
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: "{{resolve:ssm:/dev/ec2/instanceType}}"
+      ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      Tags:
+        - Key: Name
+          Value: !Sub "ec2-server-${AWS::AccountId}-${AWS::Region}"
