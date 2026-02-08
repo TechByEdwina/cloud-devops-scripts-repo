@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: EC2 instance lanuched in a default VPC
 
 Resources:
-  EC2Instance:
+  MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
