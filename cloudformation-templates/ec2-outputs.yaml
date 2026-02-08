@@ -1,0 +1,34 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Simple EC2 instance with Outputs demo
+
+Resources:
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      Tags:
+        - Key: Name
+          Value: !Sub "ec2-server-${AWS::AccountId}-${AWS::Region}"
+
+Outputs:
+  InstanceID:
+    Description: "The ID of the EC2 instance"
+    Value: !Ref DemoEC2
+
+  InstanceName:
+    Description: "The Name tag of the EC2 instance"
+    Value: !Sub "ec2-server-${AWS::AccountId}-${AWS::Region}"
+
+  VPCID:
+    Description: "VPC ID where the EC2 instance is launched"
+    Value: !GetAtt DemoEC2.VpcId
+
+  SecurityGroupID:
+    Description: "The default Security Group ID of the EC2 instance"
+    Value: !GetAtt DemoEC2.SecurityGroups
+
+  Region:
+    Description: "AWS region where the stack is deployed"
+    Value: !Ref "AWS::Region"
