@@ -9,7 +9,7 @@ Mappings:
     us-east-2:
       AMI: ami-00399ec92321828f5
     us-west-2:
-      AMI: ami-08962a4068733a2b6
+      AMI: ami-00154b7a7520132a0
 
 Resources:
   DemoEC2:
