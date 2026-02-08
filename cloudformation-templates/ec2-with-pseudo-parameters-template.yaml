@@ -1,0 +1,25 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Launch EC2 in default VPC using Mappings and Pseudo Parameters with dynamic EC2 name
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0c02fb55956c7d316  
+    us-east-2:
+      AMI: ami-00399ec92321828f5
+    us-west-2:
+      AMI: ami-00154b7a7520132a0
+
+Resources:
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: !FindInMap
+        - RegionMap
+        - !Ref AWS::Region   
+        - AMI
+      Tags:
+        - Key: Name
+          Value: !Sub "ec2-server-${AWS::AccountId}-${AWS::Region}"
