@@ -6,7 +6,7 @@ Resources:
   DemoEC2:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t3.micro
       ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
       SecurityGroupIds:
         - !ImportValue Dev-SSH-SG-ID
