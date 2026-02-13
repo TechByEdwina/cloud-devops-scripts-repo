@@ -1,0 +1,15 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template B - Launch EC2 using imported SG ID and latest AMI from SSM
+
+Resources:
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      SecurityGroupIds:
+        - !ImportValue Dev-SSH-SG-ID
+      Tags:
+        - Key: Name
+          Value: Imported-SG-EC2
