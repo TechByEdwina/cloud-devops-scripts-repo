@@ -1,0 +1,52 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Demonstration of Ref, GetAtt, Sub, and Join Intrinsic Functions
+
+Parameters:
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+
+Resources:
+
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join 
+        - "-"
+        - - !Ref AWS::StackName
+          - demo-bucket
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: !Ref KeyPairName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-EC2"
+
+Outputs:
+
+  InstanceId:
+    Value: !Ref MyEC2Instance
+
+  InstancePublicIP:
+    Value: !GetAtt MyEC2Instance.PublicIp
+
+  InstanceInfo:
+    Value: !Sub "Instance ${MyEC2Instance} is in stack ${AWS::StackName}"
+
+  BucketOutput:
+    Value: !Join 
+      - " "
+      - - "Bucket created:"
+        - !Ref MyS3Bucket
