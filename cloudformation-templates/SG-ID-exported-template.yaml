@@ -1,12 +1,18 @@
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Template A - Create SSH Security Group and export SG ID
+Description: Stack A - Create SSH Security Group and Export SG ID
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC where the security group will be created
 
 Resources:
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow SSH access
+      GroupDescription: Allow SSH Access
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -14,8 +20,9 @@ Resources:
           CidrIp: 0.0.0.0/0
 
 Outputs:
-  ExportedSGID:
-    Description: Security Group ID
-    Value: !Ref SSHSecurityGroup
+  ExportedSecurityGroupId:
+    Description: Exported Security Group ID
+    Value: !Ref SSHSecurityGroup   
     Export:
-      Name: Dev-SSH-SG-ID
+      Name: SSH-SG-ID-Export
+
