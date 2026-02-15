@@ -1,0 +1,40 @@
+
+---
+- name: Install and manage Apache on Amazon Linux
+  hosts: amzlinux_clients
+  become: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install Apache
+      yum:
+        name: "{{ apache_amzlinux }}"
+        state: present
+      notify: restart apache on amazon linux  # <-- handler notified here
+
+  handlers:
+    - name: restart apache on amazon linux  # <-- globally unique
+      service:
+        name: "{{ apache_amzlinux }}"
+        state: restarted
+        enabled: yes
+
+- name: Install and manage Apache on Ubuntu
+  hosts: ubuntu_clients
+  become: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install Apache
+      apt:
+        name: "{{ apache_ubuntu }}"
+        state: present
+        update_cache: yes
+      notify: restart apache on ubuntu  # <-- handler notified here
+
+  handlers:
+    - name: restart apache on ubuntu  # <-- globally unique
+      service:
+        name: "{{ apache_ubuntu }}"
+        state: restarted
+        enabled: yes
