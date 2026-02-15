@@ -1,0 +1,36 @@
+
+---
+- name: Install and start Apache on Amazon Linux
+  hosts: amzlinux_clients
+  become: yes
+  vars:
+    apache_package: httpd        # variable for Amazon Linux package
+  tasks:
+    - name: Install Apache
+      yum:
+        name: "{{ apache_package }}"
+        state: present
+
+    - name: Start Apache service
+      service:
+        name: "{{ apache_package }}"
+        state: started
+        enabled: yes
+
+- name: Install and start Apache on Ubuntu
+  hosts: ubuntu_clients
+  become: yes
+  vars:
+    apache_package: apache2      # variable for Ubuntu package
+  tasks:
+    - name: Install Apache
+      apt:
+        name: "{{ apache_package }}"
+        state: present
+        update_cache: yes
+
+    - name: Start Apache service
+      service:
+        name: "{{ apache_package }}"
+        state: started
+        enabled: yes
