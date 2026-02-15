@@ -4,7 +4,7 @@
   hosts: amzlinux_clients
   become: yes
   vars:
-    apache_package: httpd        # variable for Amazon Linux package
+    apache_package: httpd        
   tasks:
     - name: Install Apache
       yum:
@@ -21,7 +21,7 @@
   hosts: ubuntu_clients
   become: yes
   vars:
-    apache_package: apache2      # variable for Ubuntu package
+    apache_package: apache2      
   tasks:
     - name: Install Apache
       apt:
