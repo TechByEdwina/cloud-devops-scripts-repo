@@ -10,10 +10,10 @@
       yum:
         name: "{{ apache_amzlinux }}"
         state: present
-      notify: restart apache on amazon linux  # <-- handler notified here
+      notify: restart apache on amazon linux  
 
   handlers:
-    - name: restart apache on amazon linux  # <-- globally unique
+    - name: restart apache on amazon linux  
       service:
         name: "{{ apache_amzlinux }}"
         state: restarted
@@ -30,10 +30,10 @@
         name: "{{ apache_ubuntu }}"
         state: present
         update_cache: yes
-      notify: restart apache on ubuntu  # <-- handler notified here
+      notify: restart apache on ubuntu  
 
   handlers:
-    - name: restart apache on ubuntu  # <-- globally unique
+    - name: restart apache on ubuntu  
       service:
         name: "{{ apache_ubuntu }}"
         state: restarted
