@@ -10,12 +10,16 @@
       yum:
         name: "{{ apache_amzlinux }}"
         state: present
+      notify: Restart apache on amazon_linux
 
-    - name: Start Apache service
+  handlers:
+    - name: Restart apache on amazon_linux
       service:
         name: "{{ apache_amzlinux }}"
-        state: started
+        state: restarted
         enabled: yes
+
+  
 
 - name: Install and start Apache on Ubuntu
   hosts: ubuntu_clients
@@ -28,9 +32,19 @@
         name: "{{ apache_ubuntu }}"
         state: present
         update_cache: yes
+      notify: Start Apache service on ubuntu
 
-    - name: Start Apache service
+  handlers:
+    - name: Start Apache service on ubuntu 
       service:
         name: "{{ apache_ubuntu }} "
         state: started
         enabled: yes
+
+
+        
+
+
+
+
+    
